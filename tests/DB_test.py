@@ -2,17 +2,56 @@ from pyserverlessdb.db import DB
 
 import datetime
 import os
+import shutil
 import tempfile
 import tracemalloc
 import unittest
 
+class TestClass:
+    def __init__(self) -> None:  
+        self.name = "TestCase"
+        self.testing = True
+
 
 class DBTests(unittest.TestCase):
-    def test_db_creation(self):
-        file_name = os.path.join(tempfile.gettempdir(), f'testdb-{datetime.datetime.now().strftime("%m-%d-%Y_%H-%M-%S")}.pysdb')
-        db_conn = DB(file_name)
-        self.assertEqual(str(db_conn), f"DB object : {file_name}", "Should return DB object")
-        os.remove(file_name)
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName=methodName)
+        self.temp_dir = os.path.join(tempfile.gettempdir(), 'pyserverlessdb_tests')
+        if not os.path.exists(self.temp_dir):
+            os.mkdir(self.temp_dir)
+        self.file_name = os.path.join(self.temp_dir, f'testdb-{datetime.datetime.now().strftime("%m-%d-%Y_%H-%M-%S")}.pysdb')
+        self.table_name = "TestTable"
+        self.db = DB(self.file_name)
+
+
+    def test_creation(self):
+        self.assertEqual(str(self.db), self.file_name, "Should return file_name as str")
+
+
+    def test_table_creation(self):
+        self.assertEqual(self.db.create_table(self.table_name), True, "Received unexpected value while creating table")
+        with self.assertRaises(ValueError, msg="Did not received Value Error while creating table"):
+            self.db.create_table(self.table_name.encode())
+
+    
+    def test_add_in_table(self):
+        self.assertEqual(self.db.add_in_table(self.table_name, TestClass()), False, "Expected return value to be False durin adding obj to table when table is not present")
+        self.db.create_table(self.table_name)
+        self.assertEqual(self.db.add_in_table(self.table_name, TestClass()), True, "Expected return value to be True after adding obj in table")
+    
+
+    def test_get_table(self):
+        self.db.create_table(self.table_name)
+        self.assertEqual(type(self.db.get_table(self.table_name)), list, "Expected Type list while retrieving table")
+
+    
+    def test_dump_data(self):
+        self.assertEqual(self.db.dump_data(), True)
+
+    
+    def test_remove_tested_files(self):
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
+
 
 
 if __name__ == "__main__":
