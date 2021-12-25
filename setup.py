@@ -17,7 +17,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(),
-    test_suite="tests",
+    test_suite="tests.DB_test",
     include_package_data = True,
     install_requires = [],
 )
