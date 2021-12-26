@@ -1,6 +1,7 @@
 from typing import Any
 
 
+import copy
 import datetime
 import json
 import os
@@ -59,9 +60,33 @@ class DB:
             ValueError: if table_name is not a str
         '''
         if type(table_name) != str:
-            raise ValueError("table name should be str.")
+            raise ValueError("table_name should be str.")
         self.__db_data[table_name] = list()
         return True
+
+
+
+    def delete_table(self, table_name:str) -> bool:
+        '''
+        description:
+            deletes table from the db
+
+        parameters:
+            table_name (str): name of the table
+
+        returns:
+            bool: returns True if operation is successful
+
+        Exception:
+            ValueError: if table_name is not a str
+        '''
+        if type(table_name) != str:
+            raise ValueError("table_name should be str.")
+        if table_name in self.__db_data.keys():
+            del self.__db_data[table_name]
+            return True
+        
+        return False
 
     
     def add_in_table(self, table_name:str, obj:Any)->bool:
@@ -104,7 +129,6 @@ class DB:
             return None
 
 
-
     def dump_data(self):
         '''
         description:
@@ -125,3 +149,17 @@ class DB:
             return True
         except Exception as e:
             raise Exception(e)
+
+        
+    def get_db_copy(self) -> dict:
+        '''
+        description:
+            returns a deep copy of the current db.
+
+        parameters:
+            None
+
+        returns:
+            dict: copy of db
+        '''
+        return copy.deepcopy(self.__db_data)

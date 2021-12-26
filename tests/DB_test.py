@@ -10,7 +10,7 @@ import unittest
 class TestClass:
     def __init__(self) -> None:  
         self.name = "TestCase"
-        self.testing = True
+        self.is_testing = True
 
 
 class DBTests(unittest.TestCase):
@@ -30,7 +30,7 @@ class DBTests(unittest.TestCase):
 
     def test_table_creation(self):
         self.assertEqual(self.db.create_table(self.table_name), True, "Received unexpected value while creating table")
-        with self.assertRaises(ValueError, msg="Did not received Value Error while creating table"):
+        with self.assertRaises(ValueError, msg="Did not received Value Error while creating table with invalid argument type"):
             self.db.create_table(self.table_name.encode())
 
     
@@ -45,6 +45,19 @@ class DBTests(unittest.TestCase):
         self.assertEqual(type(self.db.get_table(self.table_name)), list, "Expected Type list while retrieving table")
 
     
+    def test_delete_table(self):
+        self.db.create_table(self.table_name)
+        self.assertEqual(self.db.delete_table(self.table_name), True, "Expected True after deleting table")
+        self.assertEqual(self.db.delete_table(self.table_name), False, "Expected False while deleting a deleted table")
+        with self.assertRaises(ValueError, msg="Did not received Value Error while deleting a table with invalid argument type"):
+            self.db.create_table(self.table_name.encode())
+
+
+    def test_get_db_copy(self):
+        self.db.create_table(self.table_name)
+        self.assertEqual(type(self.db.get_db_copy()), dict, "Expected db as a dictionary")
+
+
     def test_dump_data(self):
         self.assertEqual(self.db.dump_data(), True)
 
