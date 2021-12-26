@@ -24,8 +24,9 @@ class DB:
         returns: 
             type: None
         '''
-        if not file_name.endswith(".pysdb"):
-            file_name += ".pysdb"
+        extension = ".pysdb"
+        if not file_name.endswith(extension):
+            file_name += extension
 
         self.__file_name = file_name
         self.__db_data = dict()

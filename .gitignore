@@ -154,3 +154,6 @@ cython_debug/
 test_scripts
 *.egg-info
 test_db.py
+
+# docs
+docs/_build
