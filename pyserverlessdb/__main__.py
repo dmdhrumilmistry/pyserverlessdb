@@ -30,8 +30,8 @@ tbls\t\tshow tables in selected db
 createtbl\tcreate a table in selected db
 deltbl\t\tdelete a table from selected db
 seltbl\t\tselect a table from selected db
-# showtbl\t\tprint selected table name from selected db
-# addobj\t\tadd object to selected table in selected db
+showtbl\t\tprint selected table name from selected db
+addobj\t\tadd object to selected table in selected db
 
 - Short forms:
 DB\t\tDatabase
@@ -44,6 +44,25 @@ del\t\tDelete
 dbs = []
 selected_db:DB = None
 selected_table_name:str = None
+
+def jsonstr_to_dict() -> dict:
+    '''
+    description:
+        takes json object as user input and returns it as a dictionary.
+
+    parameters:
+        None
+
+    returns:
+        dict: user input to dict
+        bool: False if json object is invalid 
+    '''
+    try:
+        user_input = input("[+] Enter Json Object : \n").strip()
+        json_obj:dict = json.loads(user_input)
+        return json_obj
+    except json.JSONDecodeError:
+        return False
 
 
 def select_db(db_name:str) -> bool:
@@ -183,6 +202,26 @@ def handle_and_execute(command:str):
         else:
             print(selected_table_name)
             return True
+
+    elif command[0] == "addobj":
+        if words <= 1:
+            print("[X] table name missing. usage: addobj [table_name]. Using selected table.")
+            command.append(selected_table_name)
+
+        if selected_db is None:
+            print("[X] Select DB before adding object to the table. use createdb command to create db.")
+            return False
+
+        json_data = jsonstr_to_dict()
+        if json_data:
+            if selected_db.add_in_table(selected_table_name ,json_data):
+                print(f"[*] json object added to {command[1]}")
+                return True
+            else:
+                print(f"[X] Operation was unsuccessful. Table might not exist or data is already present.")
+        else:
+            print("[X] invalid json object.")
+        
 
     elif command[0] == "dump":
         if selected_db.dump_data():
