@@ -45,6 +45,11 @@ class DBTests(unittest.TestCase):
         self.db.create_table(self.table_name)
         self.assertEqual(type(self.db.get_table(self.table_name)), list, "Expected Type list while retrieving table")
 
+
+    def test_get_table_names(self):
+        self.db.create_table(self.table_name)
+        self.assertEqual(type(self.db.get_table_names()), list, "Expected Type list while retrieving table names")
+        
     
     def test_delete_table(self):
         self.db.create_table(self.table_name)
