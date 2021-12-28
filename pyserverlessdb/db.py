@@ -135,6 +135,36 @@ class DB:
             return False
 
 
+    def update_in_table(self, table_name:str, index:int, obj:Any) -> bool:
+        '''
+        description:
+            update value of a table entry using index. 
+
+        parameters:
+            table_name (str): name of the table
+        
+        returns:
+            bool: True if operation was successful.
+                  False if table name if not found in db, or Index is invalid.
+        '''
+        try:
+            # extract data from obj
+            if type(obj) is dict:
+                data = obj
+            else:
+                data = obj.__dict__
+
+            # assign data to db table index
+            if table_name in self.get_table_names():
+                self.__db_data[table_name][index] = data
+                return True
+            return False
+
+        except IndexError:
+            return False
+        
+
+
     def get_table(self, table_name:str):
         '''
         description:
