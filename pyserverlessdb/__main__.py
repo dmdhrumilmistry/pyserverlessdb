@@ -31,6 +31,7 @@ createtbl\tcreate a table in selected db
 deltbl\t\tdelete a table from selected db
 seltbl\t\tselect a table from selected db
 showtbl\t\tprint selected table name from selected db
+printtbl\tprint selected table data from selected db
 addobj\t\tadd object to selected table in selected db
 
 - Short forms:
@@ -199,8 +200,24 @@ def handle_and_execute(command:str):
         if selected_db is None:
             print("[X] Select DB before selecting tables. use createdb command to create db.")
             return False
+        
+        if selected_table_name is None:
+            print("[!] No table selected. select a table using seltbl [table_name].")
+            return False
         else:
             print(selected_table_name)
+            return True
+
+    elif command[0] == "printtbl":
+        if selected_db is None:
+            print("[X] Select DB before using printtbl. use createdb command to create db.")
+            return False
+        
+        if selected_table_name is None:
+            print("[!] No table selected. select a table using seltbl [table_name].")
+            return False
+        else:
+            print(selected_db.get_table(selected_table_name))
             return True
 
     elif command[0] == "addobj":
