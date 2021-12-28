@@ -46,6 +46,24 @@ dbs = []
 selected_db:DB = None
 selected_table_name:str = None
 
+def dict_to_jsonstr(dictionary:dict) -> dict:
+    '''
+    description:
+        takes dictionary as parameter and returns it as a json string.
+
+    parameters:
+        dictionary (dict):
+
+    returns:
+        str : dictionary as json string
+        bool: False if dictionary is invalid 
+    '''
+    try:
+        return json.dumps(dictionary, indent=4, sort_keys=True)
+    except json.JSONDecodeError:
+        return False
+
+
 def jsonstr_to_dict() -> dict:
     '''
     description:
@@ -146,7 +164,7 @@ def handle_and_execute(command:str):
 
     elif command[0] == "printdb":
         if selected_db:
-            print(selected_db.get_db_copy())
+            print(dict_to_jsonstr(selected_db.get_db_copy()))
         else:
             print("[!] Select a database before accessing.")
             return False
@@ -217,7 +235,9 @@ def handle_and_execute(command:str):
             print("[!] No table selected. select a table using seltbl [table_name].")
             return False
         else:
-            print(selected_db.get_table(selected_table_name))
+            table_enteries = selected_db.get_table(selected_table_name)
+            for index in range(len(table_enteries)):
+                print(f"{index} : {dict_to_jsonstr(table_enteries[index])}")
             return True
 
     elif command[0] == "addobj":
