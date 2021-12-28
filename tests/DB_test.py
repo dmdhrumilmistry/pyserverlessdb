@@ -72,6 +72,7 @@ class DBTests(unittest.TestCase):
         self.db.add_in_table(self.table_name, obj)
         table = copy.deepcopy(self.db.get_table(self.table_name))
         self.assertEqual(self.db.update_in_table(self.table_name, 0, new_obj), True, "Table cannot be updated with new obj")
+        self.assertEqual(self.db.update_in_table(None, 0, new_obj), False, "Table is updated with new obj though table does not exist")
         new_table = self.db.get_table(self.table_name)
         self.assertNotEqual(table, new_table, "Table entry is not being updated")
 

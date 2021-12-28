@@ -33,6 +33,7 @@ seltbl\t\tselect a table from selected db
 showtbl\t\tprint selected table name from selected db
 printtbl\tprint selected table data from selected db
 addobj\t\tadd object to selected table in selected db
+updateobj\tupdate object from selected table in selected db
 
 - Short forms:
 DB\t\tDatabase
@@ -259,6 +260,29 @@ def handle_and_execute(command:str):
         else:
             print("[X] invalid json object.")
         
+    elif command[0] == "updateobj":
+        if words <= 1:
+            print("[X] table name missing. usage: addobj [table_name]. Using selected table.")
+            command.append(selected_table_name)
+
+        if selected_db is None:
+            print("[X] Select DB before adding object to the table. use createdb command to create db.")
+            return False
+        
+        try:
+            index = int(input('[+] Enter index : ').strip())
+        except ValueError:
+            print("[X] invalid index integer.")
+            return False
+        json_data = jsonstr_to_dict()
+        if json_data:
+            if selected_db.update_in_table(selected_table_name , index, json_data):
+                print(f"[*] json object updated to {command[1]}")
+                return True
+            else:
+                print(f"[X] Operation was unsuccessful. Table might not exist or index is invalid/out of range.")
+        else:
+            print("[X] invalid json object.")
 
     elif command[0] == "dump":
         if selected_db.dump_data():
