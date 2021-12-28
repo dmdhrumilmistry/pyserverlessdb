@@ -11,6 +11,9 @@ class DB:
     '''
     DB class
     Create a database DB object to store information locally.
+
+    for interactive console use:
+        python3 -m pyserverlessdb
     '''
     def __init__(self, file_name:str=os.path.join(os.getcwd(), f'db-{datetime.datetime.now().strftime("%m-%d-%Y_%H-%M-%S")}'), indent:int=4) -> None:
         '''
@@ -18,14 +21,15 @@ class DB:
             Creates a pysdb database at specified location.
 
         parameters:
-            file_name (str): location of the db along with its name. default name will be current_location/db-date-time example->/home/user/db_locations/mydb.pysdb
+            file_name (str): location of the db along with its name. default name will be current_location/db-date-time example->/home/user/db_locations/db-date-time.pysdb
             indent (int): json file indentation. default value is 4
 
         returns: 
             type: None
         '''
-        if not file_name.endswith(".pysdb"):
-            file_name += ".pysdb"
+        extension = ".pysdb"
+        if not file_name.endswith(extension):
+            file_name += extension
 
         self.__file_name = file_name
         self.__db_data = dict()
@@ -61,8 +65,10 @@ class DB:
         '''
         if type(table_name) != str:
             raise ValueError("table_name should be str.")
-        self.__db_data[table_name] = list()
-        return True
+        if table_name not in self.__db_data.keys():
+            self.__db_data[table_name] = list()
+            return True
+        return False
 
 
 
@@ -75,7 +81,7 @@ class DB:
             table_name (str): name of the table
 
         returns:
-            bool: returns True if operation is successful
+            bool: returns True if operation is successful, else False
 
         Exception:
             ValueError: if table_name is not a str
@@ -88,8 +94,22 @@ class DB:
         
         return False
 
+
+    def get_table_names(self) -> list:
+        '''
+        description:
+            get table names in a db as a list.
+
+        parameters:
+            None
+        
+        returns:
+            list: table names
+        '''
+        return list(self.__db_data.keys())
     
-    def add_in_table(self, table_name:str, obj:Any)->bool:
+
+    def add_in_table(self, table_name:str, obj:Any) -> bool:
         '''
         description:
             add object to the table of table_name
@@ -99,14 +119,50 @@ class DB:
             obj (Any): object to be inserted in the table
         
         returns:
-            bool:   True if object is inserted successfully,
-                    False if table not found.
+            bool: True if object is inserted successfully, 
+                  False if table not found or data already exists.
         '''
         try:
-            self.__db_data[table_name].append(obj.__dict__)
-            return True
+            if type(obj) is dict:
+                data = obj
+            else:
+                data = obj.__dict__
+            if data not in self.__db_data[table_name]:
+                self.__db_data[table_name].append(data)
+                return True
+            return False
         except KeyError:
             return False
+
+
+    def update_in_table(self, table_name:str, index:int, obj:Any) -> bool:
+        '''
+        description:
+            update value of a table entry using index. 
+
+        parameters:
+            table_name (str): name of the table
+        
+        returns:
+            bool: True if operation was successful.
+                  False if table name if not found in db, or Index is invalid.
+        '''
+        try:
+            # extract data from obj
+            if type(obj) is dict:
+                data = obj
+            else:
+                data = obj.__dict__
+
+            # assign data to db table index
+            if table_name in self.get_table_names():
+                self.__db_data[table_name][index] = data
+                return True
+            return False
+
+        except IndexError:
+            return False
+        
 
 
     def get_table(self, table_name:str):
@@ -132,7 +188,7 @@ class DB:
     def dump_data(self):
         '''
         description:
-            dumps data into the file.
+            dumps data into the file. DB file are updated while dumping data.
 
         parameters:
             None

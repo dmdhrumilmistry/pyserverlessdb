@@ -1,5 +1,7 @@
+from pyserverlessdb.__main__ import select_db
 from pyserverlessdb.db import DB
 
+import copy
 import datetime
 import os
 import shutil
@@ -7,10 +9,11 @@ import tempfile
 import tracemalloc
 import unittest
 
+
 class TestClass:
-    def __init__(self) -> None:  
-        self.name = "TestCase"
-        self.is_testing = True
+    def __init__(self, name:str="TestCase", is_testing:int=True) -> None:  
+        self.name = name
+        self.is_testing = is_testing
 
 
 class DBTests(unittest.TestCase):
@@ -44,6 +47,11 @@ class DBTests(unittest.TestCase):
         self.db.create_table(self.table_name)
         self.assertEqual(type(self.db.get_table(self.table_name)), list, "Expected Type list while retrieving table")
 
+
+    def test_get_table_names(self):
+        self.db.create_table(self.table_name)
+        self.assertEqual(type(self.db.get_table_names()), list, "Expected Type list while retrieving table names")
+        
     
     def test_delete_table(self):
         self.db.create_table(self.table_name)
@@ -56,6 +64,19 @@ class DBTests(unittest.TestCase):
     def test_get_db_copy(self):
         self.db.create_table(self.table_name)
         self.assertEqual(type(self.db.get_db_copy()), dict, "Expected db as a dictionary")
+
+    def test_update_in_table(self):
+        obj = TestClass()
+        new_obj = TestClass("NewObj")
+        self.db.create_table(self.table_name)
+        self.db.add_in_table(self.table_name, obj)
+        table = copy.deepcopy(self.db.get_table(self.table_name))
+        self.assertEqual(self.db.update_in_table(self.table_name, 0, new_obj), True, "Table cannot be updated with new obj")
+        self.assertEqual(self.db.update_in_table(None, 0, new_obj), False, "Table is updated with new obj though table does not exist")
+        new_table = self.db.get_table(self.table_name)
+        self.assertNotEqual(table, new_table, "Table entry is not being updated")
+
+
 
 
     def test_dump_data(self):
